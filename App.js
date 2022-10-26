@@ -20,7 +20,8 @@ const App = () => {
     "bg-slate-100 w-9/12 px-3 py-2 my-1 border-gray-400 border rounded-3";
   const h1 = "text-2xl font-bold";
   const h2 = "text-sm mb-4";
-  const button = "bg-cyan-600 w-6/12 items-center rounded-3 py-3 mt-4 ";
+  const button =
+    "bg-cyan-600 w-6/12 items-center rounded-3 py-3 mt-4 shadow-md";
   const buttonText = "text-base text-white ";
 
   // for managing data
@@ -158,7 +159,7 @@ const App = () => {
       {/* button - add */}
       <TouchableOpacity
         onPress={createData}
-        style={tailwind.style`${button}`}
+        style={tailwind.style`${button} `}
         activeOpacity={0.5}
       >
         {/* buttonText */}
