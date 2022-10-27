@@ -30,25 +30,28 @@ const Login = ({ navigation }) => {
 
   // for reading data
   const loginCheck = async () => {
-    if (username !== "") {
+    if (username !== "" || password !== "") {
       const dataRef = ref(db, "users/" + username);
       await onValue(dataRef, (snapshot) => {
         const data = snapshot.val();
 
         if (data !== null) {
-          Alert.alert(
-            "Found your Password!",
-            "Your password is: " + data.password
-          );
-          console.log("Login SUCCESS! =>", data);
-          setUsername("");
-          setPassword("");
+          if (data.username === username && data.password === password) {
+            console.log("Login SUCCESS! =>", data);
+
+            navigation.navigate("Home");
+
+            setUsername("");
+            setPassword("");
+          } else {
+            Alert.alert("Invalid Password", "Entered password is wrong..");
+          }
         } else {
-          Alert.alert("Invalid Username", "no such user found");
+          Alert.alert("Invalid Username", "No such user found..");
         }
       });
     } else {
-      Alert.alert("Wrong Details!", "Please enter your username..");
+      Alert.alert("Invalid Credentials!", "Please enter your login details..");
     }
   };
 

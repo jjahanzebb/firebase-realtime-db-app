@@ -28,32 +28,49 @@ const Register = ({ navigation }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   // for creating data
   const registerAccount = async () => {
     // Get a unique key for a new User
     // const userid = push(child(ref(db), "users")).key;
 
-    if (username !== "" && email !== "" && password !== "") {
-      await set(ref(db, "users/" + username), {
-        // userid: userid,
-        username: username,
-        email: email,
-        password: password,
-      })
-        .then((result) => {
-          // if Data create is successful
-          console.log("Create SUCCESS! =>", result.message);
-          setUsername("");
-          setEmail("");
-          setPassword("");
-        })
-        .catch((error) => {
-          // if Data create is failed
-          console.log("Create FAIL.. =>", error.message);
-        });
+    if (
+      username !== "" &&
+      email !== "" &&
+      password !== "" &&
+      confirmPassword !== ""
+    ) {
+      if (checkAccount) {
+        Alert.alert(
+          "Account Already Exists",
+          "This username already exist, enter new one.."
+        );
+      } else {
+        if (password === confirmPassword) {
+          await set(ref(db, "users/" + username), {
+            // userid: userid,
+            username: username,
+            email: email,
+            password: password,
+          })
+            .then((result) => {
+              // if Data create is successful
+              console.log("Create SUCCESS! =>", result.message);
+              setUsername("");
+              setEmail("");
+              setPassword("");
+            })
+            .catch((error) => {
+              // if Data create is failed
+              console.log("Create FAIL.. =>", error.message);
+            });
+        } else {
+          Alert.alert("Invalid Passwords", "Passwords do not match..");
+        }
+      }
     } else {
-      Alert.alert("Wrong Details!", "Please fill out all details..");
+      Alert.alert("Invalid Details!", "Please fill out all details..");
     }
   };
 
@@ -64,16 +81,10 @@ const Register = ({ navigation }) => {
       await onValue(dataRef, (snapshot) => {
         const data = snapshot.val();
 
-        if (data !== null) {
-          Alert.alert(
-            "Found your Password!",
-            "Your password is: " + data.password
-          );
-          setUsername("");
-          setEmail("");
-          setPassword("");
+        if (data !== null && data.username === username) {
+          return true;
         } else {
-          Alert.alert("Invalid Username", "no such user found");
+          return false;
         }
       });
     } else {
@@ -110,6 +121,16 @@ const Register = ({ navigation }) => {
           setPassword(text);
         }}
         placeholder="Password"
+        style={tailwind.style`${textBoxes}`}
+        secureTextEntry
+      />
+
+      <TextInput
+        value={confirmPassword}
+        onChangeText={(text) => {
+          setConfirmPassword(text);
+        }}
+        placeholder="Confirm Password"
         style={tailwind.style`${textBoxes}`}
         secureTextEntry
       />
