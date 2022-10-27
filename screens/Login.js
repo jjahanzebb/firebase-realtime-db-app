@@ -1,5 +1,5 @@
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import tailwind from "twrnc";
 import {
@@ -41,8 +41,8 @@ const Login = ({ navigation }) => {
 
             navigation.navigate("Home");
 
-            setUsername("");
-            setPassword("");
+            // setUsername("");
+            // setPassword("");
           } else {
             Alert.alert("Invalid Password", "Entered password is wrong..");
           }
