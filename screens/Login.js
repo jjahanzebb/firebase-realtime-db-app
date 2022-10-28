@@ -2,18 +2,10 @@ import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useState } from "react";
 
 import tailwind from "twrnc";
-import {
-  ref,
-  push,
-  child,
-  set,
-  update,
-  onValue,
-  remove,
-} from "firebase/database";
+import { ref, onValue } from "firebase/database";
 import { db } from "../components/config";
 
-const Login = ({ navigation }) => {
+const Login = ({ navigation, route }) => {
   // tailwind styles
   const container = "flex-1 -mt-8 bg-white items-center justify-center";
   const textBoxes =
@@ -25,12 +17,30 @@ const Login = ({ navigation }) => {
   const buttonText = "text-base text-white ";
 
   // for managing data
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState(
+    route?.params?.username ? route.params?.username : ""
+  );
+  const [password, setPassword] = useState(
+    route?.params?.password ? route.params?.password : ""
+  );
+
+  // auto login
+  useEffect(() => {
+    if (route.params !== null) loginCheck();
+  }, []);
 
   // for reading data
   const loginCheck = async () => {
-    if (username !== "" || password !== "") {
+    if (username === "" || password === "") {
+      console.log("Invalid Credentials!", "Please enter your login details..");
+    } else if (username === undefined) {
+      console.log("Invalid Credentials!", "Username undefined..");
+    } else if (username.length < 6 || password.length < 6) {
+      Alert.alert(
+        "Invalid Credentials!",
+        `Username and Password should be 6 characters long..`
+      );
+    } else {
       const dataRef = ref(db, "users/" + username);
       await onValue(dataRef, (snapshot) => {
         const data = snapshot.val();
@@ -39,7 +49,7 @@ const Login = ({ navigation }) => {
           if (data.username === username && data.password === password) {
             console.log("Login SUCCESS! =>", data);
 
-            navigation.navigate("Home");
+            navigation.navigate("Home", { user: data });
 
             // setUsername("");
             // setPassword("");
@@ -50,8 +60,6 @@ const Login = ({ navigation }) => {
           Alert.alert("Invalid Username", "No such user found..");
         }
       });
-    } else {
-      Alert.alert("Invalid Credentials!", "Please enter your login details..");
     }
   };
 

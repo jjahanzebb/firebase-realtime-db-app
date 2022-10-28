@@ -2,16 +2,9 @@ import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 import React, { useState } from "react";
 
 import tailwind from "twrnc";
-import {
-  ref,
-  push,
-  child,
-  set,
-  update,
-  onValue,
-  remove,
-} from "firebase/database";
+import { ref, set, onValue } from "firebase/database";
 import { db } from "../components/config";
+import validator from "validator";
 
 const Register = ({ navigation }) => {
   // tailwind styles
@@ -36,41 +29,72 @@ const Register = ({ navigation }) => {
     // const userid = push(child(ref(db), "users")).key;
 
     if (
-      username !== "" &&
-      email !== "" &&
-      password !== "" &&
-      confirmPassword !== ""
+      username === "" &&
+      email === "" &&
+      password === "" &&
+      confirmPassword === ""
     ) {
+      Alert.alert("Invalid Details!", "Please fill out all details..");
+    } else if (
+      username.length < 6 ||
+      username.includes("." || "#" || "$" || "[" || "]")
+    ) {
+      Alert.alert(
+        "Invalid Details!",
+        `Username should be 6 characters long and can't contain ".", "#", "$", "[", or "]"..`
+      );
+    } else if (!validator.isEmail(email)) {
+      Alert.alert("Invalid Details!", "Enter a valid email..");
+    } else if (password.length < 6) {
+      Alert.alert("Invalid Details!", `Password should be 6 characters long..`);
+    } else if (password !== confirmPassword) {
+      Alert.alert("Invalid Passwords", "Passwords do not match..");
+    } else {
+      var checkAccount = false;
+
+      const dataRef = ref(db, "users/" + username);
+      await onValue(dataRef, (snapshot) => {
+        const data = snapshot.val();
+
+        if (data !== null && data.username === username) {
+          checkAccount = true;
+        } else {
+          checkAccount = false;
+        }
+      });
+
       if (checkAccount) {
+        console.log("checkAccount => ", checkAccount);
+
+        checkAccount = false;
         Alert.alert(
           "Account Already Exists",
           "This username already exist, enter new one.."
         );
       } else {
-        if (password === confirmPassword) {
-          await set(ref(db, "users/" + username), {
-            // userid: userid,
-            username: username,
-            email: email,
-            password: password,
-          })
-            .then((result) => {
-              // if Data create is successful
-              console.log("Create SUCCESS! =>", result.message);
-              setUsername("");
-              setEmail("");
-              setPassword("");
-            })
-            .catch((error) => {
-              // if Data create is failed
-              console.log("Create FAIL.. =>", error.message);
+        await set(ref(db, "users/" + username), {
+          username: username,
+          email: email,
+          password: password,
+        })
+          .then((result) => {
+            // if User registration is successful
+            console.log("Create SUCCESS! =>", JSON.stringify(result));
+            setUsername("");
+            setEmail("");
+            setPassword("");
+            setConfirmPassword("");
+            checkAccount = false;
+            navigation.navigate("Login", {
+              username: username,
+              password: password,
             });
-        } else {
-          Alert.alert("Invalid Passwords", "Passwords do not match..");
-        }
+          })
+          .catch((error) => {
+            // if User registration is failed
+            console.log("Registration FAIL.. =>", error.message);
+          });
       }
-    } else {
-      Alert.alert("Invalid Details!", "Please fill out all details..");
     }
   };
 

@@ -1,10 +1,18 @@
 import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 
-const Home = () => {
+const Home = ({ route }) => {
+  // for user details
+  const [username, setUsername] = useState(route.params.user.username);
+  const [email, setEmail] = useState(route.params.user.email);
+  const [password, setPassword] = useState(route.params.user.password);
+
   return (
     <View>
-      <Text>Home Screen</Text>
+      <Text>Welcome! </Text>
+      <Text>Email: {email}</Text>
+      <Text>Username: {username}</Text>
+      <Text>Password: {password}</Text>
     </View>
   );
 };
